@@ -20,9 +20,11 @@ bin/%: $(GOFILES) Makefile
 
 build:
 	docker build -t $(IMAGE):$(VERSION) .
+	docker tag $(IMAGE):$(VERSION) $(IMAGE):latest
 
 push: build
 	docker push $(IMAGE):$(VERSION)
+	docker push $(IMAGE):latest
 
 clean:
 	rm -rf bin/*
