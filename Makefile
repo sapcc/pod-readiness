@@ -1,4 +1,4 @@
-IMAGE   ?= hub.global.cloud.sap/monsoon/pod-readiness
+IMAGE   ?= keppel.eu-de-1.cloud.sap/ccloud/pod-readiness
 VERSION = $(shell git rev-parse --verify HEAD | head -c 8)
 
 GOOS    ?= $(shell go env | grep GOOS | cut -d'"' -f2)
@@ -18,7 +18,7 @@ all: $(BINARIES:%=bin/$(GOOS)/%)
 bin/%: $(GOFILES) Makefile
 	GOOS=$(*D) GOARCH=amd64 go build $(GOFLAGS) -v -i -o $(@D)/$(@F) ./cmd/
 
-build: 
+build:
 	docker build -t $(IMAGE):$(VERSION) .
 
 push: build

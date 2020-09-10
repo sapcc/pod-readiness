@@ -7,6 +7,7 @@ RUN make all
 
 FROM alpine:3
 LABEL maintainer="Stefan Hipfel <stefan.hipfel@sap.com>"
+LABEL source_repository="https://github.com/sapcc/pod-readiness"
 
 ENV PACKAGES="curl"
 
