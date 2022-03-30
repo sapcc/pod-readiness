@@ -1,16 +1,19 @@
 package pod
 
 import (
+	"encoding/json"
 	"net/http"
 	"sync"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
+
 	"github.com/labstack/echo"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 type (
 	Readiness struct {
 		sync.Mutex
-		Ready bool `json:"ready"`
+		Ready  bool `json:"ready"`
+		status map[string]bool
 	}
 
 	Pod struct {
@@ -18,8 +21,8 @@ type (
 	}
 )
 
-func New() (*Pod){
-	return &Pod{&Readiness{Ready: true}}
+func New() *Pod {
+	return &Pod{&Readiness{Ready: true, status: make(map[string]bool)}}
 }
 
 func (p *Pod) getAPI() *echo.Echo {
@@ -62,14 +65,39 @@ func (p *Pod) GetReadiness() echo.HandlerFunc {
 	}
 }
 
+// PatchReadiness will update the pod readiness
+// If the query parameter `key` is supplied then it will be used to
+// store the readiness value of this key.
+// The combination of all readiness values are use to determine overall readiness
 func (p *Pod) PatchReadiness() echo.HandlerFunc {
 	return func(c echo.Context) (err error) {
 		if c.Path() == "/pod/readiness" {
 			p.Readiness.Lock()
 			defer p.Readiness.Unlock()
-			if err := c.Bind(p.Readiness); err != nil {
+
+			tempReadiness := Readiness{}
+			if err := json.NewDecoder(c.Request().Body).Decode(&tempReadiness); err != nil {
 				return err
 			}
+			key := "default"
+			if c.QueryParams().Has("key") {
+				// set the readiness for a specific key
+				key = c.QueryParams().Get("key")
+				if key == "default" {
+					return c.String(http.StatusBadRequest, "query parameter `key` must not be 'default'")
+				}
+			}
+			p.Readiness.status[key] = tempReadiness.Ready
+
+			// determine overall readiness
+			ready := true
+			for _, v := range p.Readiness.status {
+				if v == false {
+					ready = false
+				}
+			}
+			p.Readiness.Ready = ready
+
 			return c.JSON(http.StatusOK, p.Readiness)
 		}
 		return
