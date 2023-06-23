@@ -1,10 +1,10 @@
 package pod
 
 import (
+	"github.com/labstack/echo/v4"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"net/http"
 	"sync"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"github.com/labstack/echo"
 )
 
 type (
@@ -18,7 +18,7 @@ type (
 	}
 )
 
-func New() (*Pod){
+func New() *Pod {
 	return &Pod{&Readiness{Ready: true}}
 }
 
