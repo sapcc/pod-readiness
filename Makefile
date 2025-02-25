@@ -1,7 +1,7 @@
 IMAGE   ?= keppel.eu-de-1.cloud.sap/ccloud/pod-readiness
 VERSION = $(shell git rev-parse --verify HEAD | head -c 8)
 
-GOOS    ?= $(shell go env | grep GOOS | cut -d'"' -f2)
+GOOS    ?= $(shell go env GOOS)
 BINARIES := pod_readiness
 
 LDFLAGS := -X github.com/sapcc/pod-readiness/pkg/pod-readiness.VERSION=$(VERSION)
