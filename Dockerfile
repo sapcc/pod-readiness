@@ -1,11 +1,11 @@
-FROM golang:1.24-alpine3.21 as builder
+FROM golang:1.24-alpine3.22 as builder
 WORKDIR /go/src/github.com/sapcc/pod-readiness
 RUN apk add --no-cache make git
 COPY . .
 ARG VERSION
 RUN make all
 
-FROM alpine:3.21
+FROM alpine:3.22
 LABEL maintainer="Stefan Hipfel <stefan.hipfel@sap.com>"
 LABEL source_repository="https://github.com/sapcc/pod-readiness"
 
